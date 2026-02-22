@@ -41,15 +41,16 @@ public class Program {
             list.add(new Employee(id, name, salary));
         }
 
-        System.out.printf("Enter the employee id that will have a salary encrease: ");
+        System.out.printf("Enter the employee id that will have a salary increase: ");
         id = sc.nextInt();
-        System.out.printf("Enter the percentage: ");
-        Double percentage = sc.nextDouble();
         Integer finalId = id;
+        double percentage;
         Employee emp = list.stream().filter(e -> e.getId().equals(finalId)).findFirst().orElse(null);
         if (emp == null) {
             System.out.println("ID NOT EXISTS!");
         } else {
+            System.out.printf("Enter the percentage: ");
+            percentage = sc.nextDouble();
             emp.increaseSalary(percentage);
         }
 
