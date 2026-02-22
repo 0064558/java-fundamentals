@@ -13,25 +13,18 @@ public class Program {
         System.out.printf("How many employees will be registered? ");
         int n = sc.nextInt();
         sc.nextLine();
-        boolean idExists;
         Integer id;
 
         for (int i = 0; i < n; i++) {
             System.out.println("Employee #" + (i + 1) + ": ");
 
-            do {
-                System.out.printf("ID: ");
-                id = sc.nextInt();
-                idExists = false;
-                for (Employee e : list) {
-                    if (e.getId().equals(id)) {
-                        idExists = true;
-                        System.out.println("ID already taken!");
-                        break;
-                    }
-                }
-            } while (idExists);
 
+            System.out.printf("ID: ");
+            id = sc.nextInt();
+            while (hasId(list, id)) {
+                System.out.println("ID Already Taken! Try again: ");
+                id = sc.nextInt();
+            }
             sc.nextLine();
             System.out.printf("Name: ");
             String name = sc.nextLine();
@@ -43,10 +36,9 @@ public class Program {
 
         System.out.printf("Enter the employee id that will have a salary increase: ");
         id = sc.nextInt();
-        Integer finalId = id;
         double percentage;
-        Integer finalId1 = id;
-        Employee emp = list.stream().filter(x -> x.getId() == finalId1).findFirst().orElse(null);
+        Integer finalId = id;
+        Employee emp = list.stream().filter(x -> x.getId().equals(finalId)).findFirst().orElse(null);
         if (emp == null) {
             System.out.println("ID NOT EXISTS!");
         } else {
@@ -61,5 +53,10 @@ public class Program {
         }
 
         sc.close();
+    }
+
+    public static boolean hasId(List<Employee> list, int id) {
+        Employee emp = list.stream().filter(x -> x.getId().equals(id)).findFirst().orElse(null);
+        return emp != null;
     }
 }
