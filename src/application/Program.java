@@ -45,7 +45,8 @@ public class Program {
         id = sc.nextInt();
         Integer finalId = id;
         double percentage;
-        Employee emp = list.stream().filter(e -> e.getId().equals(finalId)).findFirst().orElse(null);
+        Integer finalId1 = id;
+        Employee emp = list.stream().filter(x -> x.getId() == finalId1).findFirst().orElse(null);
         if (emp == null) {
             System.out.println("ID NOT EXISTS!");
         } else {
