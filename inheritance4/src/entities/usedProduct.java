@@ -1,0 +1,32 @@
+package entities;
+
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+
+
+public class usedProduct extends Product {
+    private LocalDate manufactureDate;
+
+    public usedProduct(String name, Double price, LocalDate manufactureDate) {
+        super(name, price);
+        this.manufactureDate = manufactureDate;
+    }
+
+    public LocalDate getManufactureDate() {
+        return manufactureDate;
+    }
+
+    public void setManufactureDate(LocalDate manufactureDate) {
+        this.manufactureDate = manufactureDate;
+    }
+
+    @Override
+    public String priceTag() {
+        return "Nome: " + getName()
+                + " (used) | Price: $ "
+                + String.format("%.2f", getPrice())
+                + " | (Manufacture date: "
+                + manufactureDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
+                + ")";
+    }
+}
