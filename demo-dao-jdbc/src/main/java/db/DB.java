@@ -1,0 +1,64 @@
+package db;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.Properties;
+
+public class DB {
+
+    private static Connection conn = null;
+
+    // Abre a conexão com o bando de dados
+    public static Connection getConnection() {
+        if (conn == null) {
+            try {
+                Properties props = loadProperties();
+                String url = props.getProperty("dburl");
+                conn = DriverManager.getConnection(url, props);
+            } catch (SQLException e) {
+                throw new DbException(e.getMessage());
+            }
+        }
+        return conn;
+    }
+
+    // Fecha a conexão com o banco de dados
+    public static void closeConnection() {
+        if (conn != null) {
+            try {
+                conn.close();
+            } catch (SQLException e) {
+                throw new DbException(e.getMessage());
+            }
+
+        }
+    }
+
+    // Carrega os dados localizados em db.properties
+    private static Properties loadProperties() {
+        try (InputStream is = DB.class.getClassLoader().getResourceAsStream("db.properties")) {
+            if (is == null) {
+                throw new DbException("db.properties not found in classpath");
+            }
+            Properties props = new Properties();
+            props.load(is);
+            return props;
+        } catch (IOException e) {
+            throw new DbException(e.getMessage());
+        }
+    }
+
+    public static void closeStatement(Statement st) {
+        if (st != null) {
+            try {
+                st.close();
+            } catch (SQLException e) {
+                throw new DbException(e.getMessage());
+            }
+        }
+    }
+}
