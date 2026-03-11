@@ -80,7 +80,21 @@ public class SellerDaoJDBC implements SellerDao {
 
     @Override
     public void deleteById(Integer id) {
+        PreparedStatement st = null;
+        try {
+            st = conn.prepareStatement("DELETE FROM seller WHERE Id = ?");
+            st.setInt(1, id);
+            int rows = st.executeUpdate();
 
+            if (rows == 0) {
+                throw new DbException("ID not foud :(");
+            }
+
+        } catch (SQLException e) {
+            throw new DbException(e.getMessage());
+        } finally {
+            DB.closeStatement(st);
+        }
     }
 
     @Override
@@ -136,21 +150,16 @@ public class SellerDaoJDBC implements SellerDao {
                     "ON seller.DepartmentId = department.Id " +
                     "ORDER BY Name");
 
-
             rs = st.executeQuery();
-
             List<Seller> list = new ArrayList<>();
             Map<Integer, Department> map = new HashMap<>();
 
             while (rs.next()) {
-
                 Department dep = map.get(rs.getInt("DepartmentId"));
-
                 if (dep == null) {
                     dep = instantiateDepartment(rs);
                     map.put(rs.getInt("DepartmentID"), dep);
                 }
-
                 Seller seller = instantiateSeller(rs, dep);
                 list.add(seller);
             }
