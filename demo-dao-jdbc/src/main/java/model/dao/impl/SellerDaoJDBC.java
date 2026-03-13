@@ -53,7 +53,6 @@ public class SellerDaoJDBC implements SellerDao {
         } finally {
             DB.closeStatement(st);
         }
-
     }
 
     @Override
@@ -87,7 +86,7 @@ public class SellerDaoJDBC implements SellerDao {
             int rows = st.executeUpdate();
 
             if (rows == 0) {
-                throw new DbException("ID not foud :(");
+                throw new DbException("ID not found :(");
             }
 
         } catch (SQLException e) {

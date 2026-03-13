@@ -7,7 +7,7 @@ import java.util.Objects;
 public class Seller implements Serializable {
     private static final long serialVersionUID = 1L; // Indentificado único para serialização
 
-   private Integer id;
+    private Integer id;
     private String name;
     private String email;
     private Date birthDate;
