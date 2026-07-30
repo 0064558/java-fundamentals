@@ -5,7 +5,7 @@ import java.util.Date;
 import java.util.Objects;
 
 public class Seller implements Serializable {
-    private static final long serialVersionUID = 1L; // Indentificado único para serialização
+    private static final long serialVersionUID = 1L; // Indentificador único para serialização
 
     private Integer id;
     private String name;
