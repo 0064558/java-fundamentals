@@ -2,67 +2,135 @@ package com.rodrigo.demo;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.InetSocketAddress;
 import java.nio.channels.Channels;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.StandardCharsets;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class SimpleChatClientA {
     private JTextField outgoing;
     private PrintWriter writer;
+    private BufferedReader reader;
+    private JTextArea incoming;
+    private JButton sendButton;
+    private SocketChannel socket;
+    private ExecutorService executor;
 
-    static void main(String[] args) {
-        new SimpleChatClientA().go();
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> new SimpleChatClientA().go());
     }
 
-    // Inicia o cliente de chat e configura a interface gráfica
+    // Monta a interface antes de iniciar a leitura de mensagens.
     public void go() {
-        // Configura a rede para se conectar ao servidor de chat
-        setUpNetworking();
-
+        JScrollPane scroller = createScrollableTextArea();
         outgoing = new JTextField(20);
-
-        JButton sendButton = new JButton("Send");
+        sendButton = new JButton("Send");
         sendButton.addActionListener(e -> sendMessage());
+        outgoing.addActionListener(e -> sendMessage());
 
-        JPanel mainPanel = new JPanel();
-        mainPanel.add(outgoing);
-        mainPanel.add(sendButton);
+        JPanel sendPanel = new JPanel();
+        sendPanel.add(outgoing);
+        sendPanel.add(sendButton);
+
+        JPanel mainPanel = new JPanel(new BorderLayout());
+        mainPanel.add(scroller, BorderLayout.CENTER);
+        mainPanel.add(sendPanel, BorderLayout.SOUTH);
+
         JFrame frame = new JFrame("Simple Chat Client");
-        frame.getContentPane().add(BorderLayout.CENTER, mainPanel);
-        frame.setSize(400, 100);
+        frame.setContentPane(mainPanel);
+        frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+        frame.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                closeNetworking();
+            }
+        });
+        frame.pack();
+        frame.setLocationByPlatform(true);
         frame.setVisible(true);
-        frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-    }
 
-    // Configura a rede para se conectar ao servidor de chat
-    private void setUpNetworking() {
         try {
-            // Cria um endereço de socket para o servidor de chat (localhost na porta 5000)
-            InetSocketAddress serverAddress = new InetSocketAddress("localhost", 5000);
-
-            // Abre um canal de socket para se conectar ao servidor de chat
-            SocketChannel socketChannel = SocketChannel.open(serverAddress);
-
-            // Cria um PrintWriter para enviar mensagens ao servidor de chat através do canal de socket
-            writer = new PrintWriter(Channels.newWriter(socketChannel, StandardCharsets.UTF_8));
-            System.out.println("networking established");
+            setUpNetworking();
+            executor = Executors.newSingleThreadExecutor();
+            executor.execute(new IncomingReader(reader, incoming, this::handleDisconnect));
         } catch (IOException e) {
-            e.printStackTrace();
+            closeNetworking();
+            outgoing.setEnabled(false);
+            sendButton.setEnabled(false);
+            incoming.append("Não foi possível conectar a localhost:5000.\n"
+                    + "Inicie SimpleChatServer e abra o cliente novamente.\n");
+            System.err.println("Falha na conexão: " + e.getMessage());
         }
     }
 
-    // Envia a mensagem digitada pelo usuário para o servidor de chat
+    private JScrollPane createScrollableTextArea() {
+        // Atribui ao campo da classe, sem criar outra variável com o mesmo nome.
+        incoming = new JTextArea(15, 30);
+        incoming.setLineWrap(true);
+        incoming.setWrapStyleWord(true);
+        incoming.setEditable(false);
+
+        JScrollPane scroller = new JScrollPane(incoming);
+        scroller.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+        scroller.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        return scroller;
+    }
+
+    private void setUpNetworking() throws IOException {
+        socket = SocketChannel.open(new InetSocketAddress("localhost", 5000));
+        // Atribui o leitor ao campo da classe, sem criar uma variável local.
+        reader = new BufferedReader(Channels.newReader(socket, StandardCharsets.UTF_8));
+        writer = new PrintWriter(Channels.newWriter(socket, StandardCharsets.UTF_8), true);
+        System.out.println("networking established");
+    }
+
     private void sendMessage() {
-        // Obtém o texto digitado pelo usuário no campo de entrada e envia para o servidor de chat
-        writer.println(outgoing.getText());
-        // Garante que a mensagem seja enviada imediatamente, sem esperar por mais dados
-        writer.flush();
-        // Limpa o campo de entrada e coloca o foco de volta nele para que o usuário possa digitar outra mensagem
+        if (writer == null || !sendButton.isEnabled()) {
+            return;
+        }
+        String message = outgoing.getText();
+        if (message.isBlank()) {
+            return;
+        }
+        // autoFlush=true envia a linha imediatamente.
+        writer.println(message);
+        if (writer.checkError()) {
+            incoming.append("Não foi possível enviar a mensagem.\n");
+            handleDisconnect();
+            return;
+        }
         outgoing.setText("");
-        // Coloca o foco de volta no campo de entrada para que o usuário possa digitar outra mensagem
-        outgoing.requestFocus();
+        outgoing.requestFocusInWindow();
+    }
+
+    private void handleDisconnect() {
+        boolean wasConnected = sendButton.isEnabled();
+        outgoing.setEnabled(false);
+        sendButton.setEnabled(false);
+        closeNetworking();
+        if (wasConnected) {
+            incoming.append("Conexão encerrada.\n");
+        }
+    }
+
+    private void closeNetworking() {
+        // Fechar o socket desbloqueia readLine(), permitindo encerrar a thread.
+        if (socket != null) {
+            try {
+                socket.close();
+            } catch (IOException e) {
+                System.err.println("Erro ao fechar a conexão: " + e.getMessage());
+            }
+        }
+        if (executor != null) {
+            executor.shutdownNow();
+        }
     }
 }
