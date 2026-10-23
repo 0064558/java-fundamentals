@@ -65,4 +65,12 @@ public class ProductController {
     ) {
         return productService.updateProduct(request, id);
     }
+
+    // A anotação @DeleteMapping("/{id}") é usada para mapear requisições HTTP DELETE para um método específico do controlador,
+    //  onde "{id}" é um parâmetro de caminho que representa o ID do produto
+    @DeleteMapping("/{id}")
+    // O método deleteProduct é responsável por lidar com requisições DELETE para o endpoint "/products/{id}" e excluir um produto existente com base no ID fornecido.
+    public void deleteProduct(@PathVariable Long id) {
+        productService.deleteProduct(id);
+    }
 }
