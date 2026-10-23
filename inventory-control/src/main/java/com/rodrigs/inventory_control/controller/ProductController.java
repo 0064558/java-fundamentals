@@ -38,8 +38,18 @@ public class ProductController {
         return productService.createProduct(request);
     }
 
+    // A anotação @GetMapping é usada para mapear requisições HTTP GET para um método específico do controlador.
     @GetMapping
+    // O método findAllProducts é responsável por lidar com requisições GET para o endpoint "/products" e retornar uma lista de todos os produtos disponíveis.
     public List<ProductResponse> findAllProducts() {
         return productService.findAllProducts();
+    }
+
+    // A anotação @GetMapping("/{id}") é usada para mapear requisições HTTP GET para um método específico do controlador,
+    //  onde "{id}" é um parâmetro de caminho que representa o ID do produto a ser buscado.
+    @GetMapping("/{id}")
+    // A anotação @PathVariable é usada para vincular o valor do parâmetro de caminho "{id}" ao parâmetro do método findProductById.
+    public ProductResponse findProductById(@PathVariable Long id) {
+        return productService.findProductById(id);
     }
 }
