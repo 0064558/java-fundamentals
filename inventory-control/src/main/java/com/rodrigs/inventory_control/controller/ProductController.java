@@ -7,6 +7,8 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 /*
 * Um controller em Java, especialmente no contexto do Spring Boot, é uma classe responsável por lidar com as requisições HTTP recebidas pelo servidor.
 * Ele atua como intermediário entre a camada de apresentação (como uma interface web ou API) e a camada de serviço ou lógica de negócios da aplicação.
@@ -34,5 +36,10 @@ public class ProductController {
     // @RequestBody faz o Spring ler o JSON e converte-lo para o objeto ProductRequest.
     public ProductResponse createProduct(@Valid @RequestBody ProductRequest request) {
         return productService.createProduct(request);
+    }
+
+    @GetMapping
+    public List<ProductResponse> findAllProducts() {
+        return productService.findAllProducts();
     }
 }
