@@ -52,4 +52,17 @@ public class ProductController {
     public ProductResponse findProductById(@PathVariable Long id) {
         return productService.findProductById(id);
     }
+
+    // A anotação @PutMapping("/{id}") é usada para mapear requisições HTTP PUT para um método específico do controlador,
+    //  onde "{id}" é um parâmetro de caminho que representa o ID do produto
+    @PutMapping("/{id}")
+    // O método updateProduct é responsável por lidar com requisições PUT para o endpoint "/products/{id}" e atualizar os dados de um produto existente com base no ID fornecido.
+    public ProductResponse updateProduct(
+            @Valid @RequestBody
+            ProductRequest request,
+            @PathVariable
+            Long id
+    ) {
+        return productService.updateProduct(request, id);
+    }
 }
