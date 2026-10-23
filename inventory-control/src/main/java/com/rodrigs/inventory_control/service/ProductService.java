@@ -94,7 +94,7 @@ public class ProductService {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ProductNotFoundException("Product not found with id: " + id));
 
-        // Deleta o produto no banco de ados
+        // Deleta o produto no banco de dados
         productRepository.delete(product);
     }
 }
