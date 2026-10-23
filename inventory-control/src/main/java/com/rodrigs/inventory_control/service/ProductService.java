@@ -14,12 +14,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
 // A anotação @Service indica que a classe ProductService é um componente de serviço do Spring, responsável por conter a lógica de negócios relacionada à entidade Product.
 @Service
 public class ProductService {
-    // Final faz com que a variável não possa ser reatribuída após a inicialização, garantindo que o ProductRepository seja imutável dentro da classe ProductService.
     private final ProductRepository productRepository;
 
     // Injeção de dependência é um padrão de design usado para fornecer as dependências necessárias a uma classe, em vez de a própria classe criar ou gerenciar essas dependências. Isso promove um código mais modular, testável e flexível.
@@ -66,5 +64,28 @@ public class ProductService {
         );
     }
 
+    // Atualiza um produto existe pelo ID
+    @Transactional
+    public ProductResponse updateProduct(ProductRequest request, Long id) {
+        // Encontra o produto pelo ID
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new ProductNotFoundException("Product not found with id: " + id));
+
+        // Atualiza os campos do produto com os dados fornecidos no ProductRequest
+        product.setName(request.name());
+        product.setPrice(request.price());
+        product.setQuantity(request.quantity());
+
+        // Salva o produto atualizado no banco de dados
+        Product updatedProduct = productRepository.save(product);
+
+        // Retorna um ProductResponse contendo os dados do produto atualizado
+        return new ProductResponse(
+                updatedProduct.getId(),
+                updatedProduct.getName(),
+                updatedProduct.getPrice(),
+                updatedProduct.getQuantity()
+        );
+    }
 
 }
