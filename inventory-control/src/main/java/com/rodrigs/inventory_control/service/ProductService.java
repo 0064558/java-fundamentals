@@ -40,6 +40,8 @@ public class ProductService {
         return new ProductResponse(savedProduct.getId(), savedProduct.getName(), savedProduct.getPrice(), savedProduct.getQuantity());
     }
 
+    // Encontra todos os produtos no banco de dados e retorna uma lista de ProductResponse.
+    @Transactional(readOnly = true)
     public List<ProductResponse> findAllProducts() {
         // Recupera todos os produtos do banco de dados usando o repositório.
         List<Product> products = productRepository.findAll();
@@ -50,6 +52,8 @@ public class ProductService {
                 .toList();
     }
 
+    // Encontra um produto pelo ID fornecido e retorna um ProductResponse. Se o produto não for encontrado, lança uma exceção ProductNotFoundException.
+    @Transactional(readOnly = true)
     public ProductResponse findProductById(Long id) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ProductNotFoundException("Product not found with id: " + id));
@@ -61,4 +65,6 @@ public class ProductService {
                 product.getQuantity()
         );
     }
+
+
 }
