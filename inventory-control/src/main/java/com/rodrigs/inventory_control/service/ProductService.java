@@ -8,9 +8,13 @@ package com.rodrigs.inventory_control.service;
 import com.rodrigs.inventory_control.dto.ProductRequest;
 import com.rodrigs.inventory_control.dto.ProductResponse;
 import com.rodrigs.inventory_control.entity.Product;
+import com.rodrigs.inventory_control.exceptions.ProductNotFoundException;
 import com.rodrigs.inventory_control.repository.ProductRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Optional;
 
 // A anotação @Service indica que a classe ProductService é um componente de serviço do Spring, responsável por conter a lógica de negócios relacionada à entidade Product.
 @Service
@@ -34,5 +38,27 @@ public class ProductService {
 
         // Retorna um ProductResponse contendo os dados do produto salvo, incluindo o ID gerado pelo banco de dados.
         return new ProductResponse(savedProduct.getId(), savedProduct.getName(), savedProduct.getPrice(), savedProduct.getQuantity());
+    }
+
+    public List<ProductResponse> findAllProducts() {
+        // Recupera todos os produtos do banco de dados usando o repositório.
+        List<Product> products = productRepository.findAll();
+
+        // Converte a lista de produtos em uma lista de ProductResponse e retorna.
+        return products.stream()
+                .map(product -> new ProductResponse(product.getId(), product.getName(), product.getPrice(), product.getQuantity()))
+                .toList();
+    }
+
+    public ProductResponse findProductById(Long id) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new ProductNotFoundException("Product not found with id: " + id));
+
+        return new ProductResponse(
+                product.getId(),
+                product.getName(),
+                product.getPrice(),
+                product.getQuantity()
+        );
     }
 }
