@@ -88,4 +88,13 @@ public class ProductService {
         );
     }
 
+    @Transactional
+    public void deleteProduct(Long id) {
+        // Encontra o produto pelo ID
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new ProductNotFoundException("Product not found with id: " + id));
+
+        // Deleta o produto no banco de ados
+        productRepository.delete(product);
+    }
 }
