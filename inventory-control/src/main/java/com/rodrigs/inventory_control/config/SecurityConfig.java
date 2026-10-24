@@ -15,7 +15,7 @@ public class SecurityConfig {
     @Bean
     public PasswordEncoder passwordEncoder() {
         // O método retorna uma instância de BCryptPasswordEncoder, que é uma implementação do PasswordEncoder fornecida pelo Spring Security.
-        // O BCryptPasswordEncoder é usado para criptografar senhas de forma segura
+        // O BCryptPasswordEncoder é usado para gerar hashes de senhas de forma segura
         return new BCryptPasswordEncoder();
     }
 }
