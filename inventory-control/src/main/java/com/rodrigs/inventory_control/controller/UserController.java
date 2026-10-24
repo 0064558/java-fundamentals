@@ -1,5 +1,6 @@
 package com.rodrigs.inventory_control.controller;
 
+import com.rodrigs.inventory_control.dto.AuthResponse;
 import com.rodrigs.inventory_control.dto.UserRequest;
 import com.rodrigs.inventory_control.dto.UserResponse;
 import com.rodrigs.inventory_control.service.UserService;
@@ -18,7 +19,7 @@ public class UserController {
 
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
-    public UserResponse registerUser(@Valid @RequestBody UserRequest request) {
+    public AuthResponse registerUser(@Valid @RequestBody UserRequest request) {
         return userService.registerUser(request);
     }
 }

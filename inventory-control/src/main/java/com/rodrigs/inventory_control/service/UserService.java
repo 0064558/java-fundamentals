@@ -1,6 +1,7 @@
 package com.rodrigs.inventory_control.service;
 
 import com.rodrigs.inventory_control.config.SecurityConfig;
+import com.rodrigs.inventory_control.dto.AuthResponse;
 import com.rodrigs.inventory_control.dto.UserRequest;
 import com.rodrigs.inventory_control.dto.UserResponse;
 import com.rodrigs.inventory_control.entity.User;
@@ -15,14 +16,16 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final TokenService tokenService;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, TokenService tokenService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.tokenService = tokenService;
     }
 
     @Transactional
-    public UserResponse registerUser(UserRequest request) {
+    public AuthResponse registerUser(UserRequest request) {
         // Verificar se o e-mail já existe
         if (userRepository.existsByEmail(request.email())) {
             throw new UserAlreadyExistsException("User already exists :(");
@@ -37,11 +40,9 @@ public class UserService {
         // Salvar no banco pelo repository do user
        User savedUser = userRepository.save(user);
 
+       String token = tokenService.generateToken(savedUser);
+
         // Retornar a entidade user para uma resposta em DTO
-        return new UserResponse(
-                savedUser.getId(),
-                savedUser.getEmail(),
-                savedUser.getRole()
-        );
+        return new AuthResponse(token, "Bearer");
     }
 }
