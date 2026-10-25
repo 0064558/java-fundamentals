@@ -39,7 +39,7 @@ public class GlobalExceptionHandler {
                 .body(error);
     }
 
-    @ExceptionHandler(UserAlreadyExistsException.class)
+    @ExceptionHandler(InvalidCredentialsException.class)
     public ResponseEntity<ErrorResponse> handleInvalidCredentialsException(InvalidCredentialsException exception) {
         ErrorResponse error = new ErrorResponse(
                 HttpStatus.UNAUTHORIZED.value(),

@@ -6,6 +6,7 @@ import com.rodrigs.inventory_control.dto.UserRequest;
 import com.rodrigs.inventory_control.dto.UserResponse;
 import com.rodrigs.inventory_control.entity.User;
 import com.rodrigs.inventory_control.enums.Role;
+import com.rodrigs.inventory_control.exceptions.InvalidCredentialsException;
 import com.rodrigs.inventory_control.exceptions.UserAlreadyExistsException;
 import com.rodrigs.inventory_control.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -52,11 +53,11 @@ public class UserService {
     public AuthResponse loginUser(UserRequest request) {
         // Buscar usuário pelo e-mail
         User user = userRepository.findByEmail(request.email())
-                .orElseThrow(() -> new RuntimeException("E-mail or password invalid"));
+                .orElseThrow(() -> new InvalidCredentialsException("E-mail or password invalid"));
 
         // Verificar as credenciais
         if (!passwordEncoder.matches(request.password(), user.getPassword())) {
-            throw new RuntimeException("E-mail or password invalid");
+            throw new InvalidCredentialsException("E-mail or password invalid");
         }
 
         // Gerar token JWT
