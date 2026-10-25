@@ -12,6 +12,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 @Service
 public class UserService {
     private final UserRepository userRepository;
@@ -43,6 +45,24 @@ public class UserService {
        String token = tokenService.generateToken(savedUser);
 
         // Retornar a entidade user para uma resposta em DTO
+        return new AuthResponse(token, "Bearer");
+    }
+
+    @Transactional(readOnly = true)
+    public AuthResponse loginUser(UserRequest request) {
+        // Buscar usuário pelo e-mail
+        User user = userRepository.findByEmail(request.email())
+                .orElseThrow(() -> new RuntimeException("E-mail or password invalid"));
+
+        // Verificar as credenciais
+        if (!passwordEncoder.matches(request.password(), user.getPassword())) {
+            throw new RuntimeException("E-mail or password invalid");
+        }
+
+        // Gerar token JWT
+        String token = tokenService.generateToken(user);
+
+        // Retornar a resposta de autenticação
         return new AuthResponse(token, "Bearer");
     }
 }
