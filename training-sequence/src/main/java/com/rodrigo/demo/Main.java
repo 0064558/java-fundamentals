@@ -1,8 +1,6 @@
 package com.rodrigo.demo;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 //TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
 // click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
@@ -17,6 +15,34 @@ public class Main {
 
         trainingSequence(trainingDays);
 
+        System.out.println("----------------- Http Status Code -------------------");
+
+        List<Integer> httpStatusCode = List.of(200, 500, 502, 200, 404, 503, 504, 201);
+        int sequence = findSequence(httpStatusCode);
+        System.out.println(sequence);
+
+    }
+
+    public static int findSequence(List<Integer> httpStatusCode) {
+        if (httpStatusCode.isEmpty()) {
+            return 0;
+        }
+
+        int errorCount = 0;
+        int bestStreak = 0;
+
+        for (Integer statusCode : httpStatusCode) {
+            if (statusCode >=400 && statusCode <= 599) {
+                errorCount++;
+
+                if (errorCount > bestStreak) {
+                    bestStreak = errorCount;
+                }
+            } else {
+                errorCount = 0;
+            }
+        }
+        return bestStreak;
     }
 
     public static void trainingSequence(List<Integer> days) {
@@ -58,3 +84,4 @@ public class Main {
         System.out.println("Best start: " + bestStart);
     }
 }
+
